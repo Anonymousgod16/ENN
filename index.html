@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liora's Universe</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{
+  --bg:#020202;
+  --accent:#00f2ff;
+  --soft-pink:#ff3b7a;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:white;
+  font-family:Inter,sans-serif;
+  overflow:hidden;
+}
+
+.nebula-bg{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(70,0,150,.2), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(0,40,100,.2), transparent 40%);
+  animation:drift 15s infinite alternate ease-in-out;
+  z-index:-2;
+}
+
+@keyframes drift{
+  to{transform:scale(1.15) rotate(1deg);}
+}
+
+#canvas-bg{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:1s;
+}
+
+.hidden{
+  opacity:0;
+  transform:scale(.85);
+  pointer-events:none;
+}
+
+.hero-card,.letter-card{
+  background:rgba(255,255,255,.03);
+  backdrop-filter:blur(35px);
+  border-radius:60px;
+  padding:50px;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 0 80px rgba(0,0,0,.8);
+}
+
+.title-main{
+  font-size:2.8rem;
+  font-weight:900;
+  letter-spacing:4px;
+  background:linear-gradient(90deg,#00f2ff,#ff3b7a,#7000ff,#00f2ff);
+  background-size:200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shine 4s linear infinite;
+}
+
+@keyframes shine{
+  to{background-position:200%;}
+}
+
+.orbit-container{
+  position:relative;
+  width:320px;
+  height:320px;
+  margin:30px auto;
+}
+
+.planet{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:4.5rem;
+  z-index:2;
+  filter:drop-shadow(0 0 30px var(--accent));
+}
+
+.float-item{
+  position:absolute;
+  width:75px;
+  height:75px;
+  border-radius:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.8rem;
+  background:rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);
+  cursor:pointer;
+  transition:.3s;
+  z-index:5;
+}
+
+.float-item::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  border-radius:26px;
+  border:2px solid rgba(0,242,255,.8);
+  filter:blur(2px);
+  opacity:.85;
+  animation:edgeGlow 6s linear infinite;
+  pointer-events:none;
+}
+
+@keyframes edgeGlow{
+  0%{border-color:#00f2ff;}
+  33%{border-color:#ff3b7a;}
+  66%{border-color:#7000ff;}
+  100%{border-color:#00f2ff;}
+}
+
+.float-item:hover{
+  transform:scale(1.2);
+  box-shadow:0 0 30px var(--accent);
+}
+
+.interaction-hint{
+  font-size:11px;
+  letter-spacing:3px;
+  opacity:.6;
+  animation:pulse 2.5s infinite;
+}
+
+@keyframes pulse{
+  50%{opacity:1;}
+}
+
+.nav-btn{
+  margin-top:25px;
+  padding:15px 35px;
+  border-radius:50px;
+  font-weight:800;
+  border:none;
+  cursor:pointer;
+  background:#ffffff;
+  color:#000000;
+}
+
+#message-box{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:rgba(10,10,10,.95);
+  padding:40px;
+  border-radius:40px;
+  width:80%;
+  max-width:350px;
+  transition:.5s;
+  z-index:1000;
+}
+
+footer{
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+  font-size:10px;
+  letter-spacing:5px;
+  opacity:.5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nebula-bg"></div>
+<canvas id="canvas-bg"></canvas>
+
+<audio id="bg-music" loop>
+  <source src="Love Runs Deeper - Gregory Porter.mp3">
+</audio>
+
+<section id="page1" class="page">
+  <div class="hero-card">
+    <h1 class="title-main">LIORA'S UNIVERSE</h1>
+
+    <div class="orbit-container" id="orbitBox">
+      <div class="planet">🪐</div>
+
+      <div class="float-item" data-angle="0"
+        onclick="reveal(
+          'E — Ethereal',
+          'Sometimes I look at you and I honestly can’t believe you’re mine still. You have this light about you that feels like it’s from another world; a beauty that isnt just what I see, but how you make me feel. You’re my own piece of heaven right here on earth.',
+          '#ff00ff'
+        )">💎</div>
+
+      <div class="float-item" data-angle="90"
+        onclick="reveal(
+          'N — Natty',
+          'There’s a quiet magic in you that leaves me speechless. Every photo we take is a piece of a galaxy we built together.',
+          '#00ff88'
+        )">📸</div>
+
+      <div class="float-item" data-angle="180"
+        onclick="reveal(
+          'N — Nirvana',
+          'You are the only place I ever want to go when the world gets too loud. You have this way of washing away my stress and healing my heart just by being there. One hug from you and everything else disappears. You’re my comfort, my home, and my cure.',
+          '#00f2ff'
+        )">🌌</div>
+
+      <div class="float-item" data-angle="270"
+        onclick="reveal(
+          'Y — Yūgen',
+          'I hope you know that your softness isn’t a weakness. It’s actually your greatest power. Your femininity is like a spell you’ve cast on my world, making everything better. I promise to always protect and cherish this beautiful soul you’ve trusted me with',
+          '#ff3b7a'
+        )">🌸</div>
+    </div>
+
+    <div class="interaction-hint">Touch the orbiting stars princess ✨</div>
+    <button class="nav-btn" onclick="toggleMusic()">Tap me Bubu</button><br>
+    <span style="cursor:pointer;font-size:11px;letter-spacing:2px;" onclick="nextPage()">ENTER THE SANCTUARY →</span>
+  </div>
+</section>
+
+<section id="page2" class="page hidden">
+  <div class="letter-card">
+    <h2 style="color:var(--soft-pink);letter-spacing:3px;">TO MY QUEEN…</h2>
+    <p style="line-height:1.8;margin-top:20px;">
+      When the world feels heavy and your light starts to dim, remember that even the stars need the dark to shine.
+      <br><br>
+      I am your gravity. Look back at this universe. My love is a promise that I will hold the space for both of us.
+    </p>
+    <button class="nav-btn" onclick="prevPage()">Back to Stars</button>
+  </div>
+</section>
+
+<div id="message-box">
+  <h2 id="msg-title"></h2>
+  <p id="msg-body"></p>
+  <button class="nav-btn" onclick="closeMsg()">Close</button>
+</div>
+
+<footer>Original Trademark 2026 © ALASKA</footer>
+
+<script>
+const music=document.getElementById('bg-music');
+const msgBox=document.getElementById('message-box');
+const orbitBox=document.getElementById('orbitBox');
+const items=[...document.querySelectorAll('.float-item')];
+
+let angle=0;
+const radius=140;
+const speed=(Math.PI*2)/(20*60);
+
+function animate(){
+  const cx=orbitBox.clientWidth/2;
+  const cy=orbitBox.clientHeight/2;
+  angle+=speed;
+
+  items.forEach(el=>{
+    const a=(parseFloat(el.dataset.angle)*Math.PI/180)+angle;
+    el.style.left=cx+Math.cos(a)*radius-37.5+'px';
+    el.style.top=cy+Math.sin(a)*radius-37.5+'px';
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+function toggleMusic(){ music.paused?music.play():music.pause(); }
+
+function reveal(title,text,color){
+  document.getElementById('msg-title').innerText=title;
+  document.getElementById('msg-title').style.color=color;
+  document.getElementById('msg-body').innerText=text;
+  msgBox.style.borderColor=color;
+  msgBox.style.transform="translate(-50%,-50%) scale(1)";
+  confetti({particleCount:80,spread:70,colors:[color,'#fff']});
+}
+
+function closeMsg(){ msgBox.style.transform="translate(-50%,-50%) scale(0)"; }
+function nextPage(){ page1.classList.add('hidden'); page2.classList.remove('hidden'); }
+function prevPage(){ page2.classList.add('hidden'); page1.classList.remove('hidden'); }
+
+/* STARFIELD */
+const canvas=document.getElementById('canvas-bg');
+const ctx=canvas.getContext('2d');
+let stars=[];
+
+function init(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+  stars=[...Array(200)].map(()=>({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*1.5,
+    s:Math.random()*.3+.1
+  }));
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="rgba(255,255,255,.6)";
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.y-=s.s;
+    if(s.y<0)s.y=canvas.height;
+  });
+  requestAnimationFrame(draw);
+}
+
+init();
+draw();
+onresize=init;
+</script>
+
+</body>
+</html>
